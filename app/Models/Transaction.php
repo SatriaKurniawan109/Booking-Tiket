@@ -12,10 +12,14 @@ class Transaction extends Model
     protected $table = 'transactions';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'pelanggan', 'jadwal_id'
+        'invoice','jumlah_tiket', 'user_id'
     ];
 
-    public function jadwal(){
-        return $this->belongsTo(Jadwal::class, 'jadwal_id');
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function transactiondetail(){
+        return $this->hasMany(TransactionDetail::class);
     }
 }

@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Film;
-use App\Models\Jadwal;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
+use App\Models\TransactionDetail;
 use Illuminate\Support\Facades\DB;
+use Haruncpi\LaravelIdGenerator\IdGenerator;
 
 class TransactionController extends Controller
 {
@@ -15,15 +16,34 @@ class TransactionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $transact = Transaction::with('jadwal')->get();
-        $djadwal = Jadwal::all();
 
-        return view('transaction', [
-            'transact' => $transact,
-            'djadwal' => $djadwal
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    public function transaction(){
+        $transact = Transaction::with('user')->get();
+        
+        return view('transaction', compact('transact'));
+    }
+
+    public function order()
+    {
+        // $transact = Transaction::with('user')->get();
+        // $transactdetail = TransactionDetail::with('film', 'transaction')->get();
+        $ddetail = Film::all();
+
+        return view('Order', [
+            // 'transactdetail' => $transactdetail,
+            'ddetail' => $ddetail
         ]);
+    }
+
+    public function detail(){
+        $transactdetail = TransactionDetail::with('film', 'transaction')->get();
+
+        return view('transaction-detail', compact('transactdetail'));
     }
 
     /**
@@ -47,10 +67,25 @@ class TransactionController extends Controller
         DB::beginTransaction();
 
         try {
-            Transaction::creat([
+            
+            $invoice = IdGenerator::generate([
+                'table' => 'transactions',
+                'length' => 10,
+                'prefix' => 'INV-',
+                'field' => 'invoice'
+            ]);
+
+            Transaction::create([
                 'id' => Request()->id,
-                'pelanggan' => Request()->pelanggan,
-                'jadwal_id' => Request()->jadwal_id
+                'invoice' => $invoice,
+                'user_id' => Auth()->id(),
+                'jumlah_tiket' => Request()->jumlah_tiket
+            ]);
+
+            TransactionDetail::create([
+                'id' => Request()->id,
+                'invoice' => $invoice,
+                'film_id' => Request()->film_id
             ]);
 
             DB::commit();
@@ -58,7 +93,7 @@ class TransactionController extends Controller
             DB::rollBack();
             return redirect()->back()->with('error', 'Terdapat kesalahan, data telah di Rollback!');
         }
-        return redirect('transaction');
+        return redirect('order');
     }
 
     /**

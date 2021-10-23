@@ -2,19 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Models\Film;
 
-class JadwalController extends Controller
+class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+    
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        // return view('jadwal');
+        $datacategory = Category::all();
+
+        return view('category', compact('datacategory'));
     }
 
     /**
@@ -35,7 +43,12 @@ class JadwalController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Category::create([
+            'id' => Request()->id,
+            'genre' => Request()->genre
+        ]);
+
+        return redirect('category');
     }
 
     /**
@@ -57,7 +70,11 @@ class JadwalController extends Controller
      */
     public function edit($id)
     {
-        //
+        $datacategory = Category::findOrFail($id);
+
+        return view('edit-category', [
+            'datacategory' => $datacategory
+        ]);
     }
 
     /**
@@ -69,7 +86,12 @@ class JadwalController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $datacategory = Category::findOrFail($id);
+        $datacategory->genre = $request->input('genre');
+          
+        $datacategory->save($request->all());
+
+        return redirect('category');
     }
 
     /**
@@ -80,6 +102,9 @@ class JadwalController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $datacategory = Category::findOrFail($id);
+        $datacategory->delete();
+
+        return back();
     }
 }

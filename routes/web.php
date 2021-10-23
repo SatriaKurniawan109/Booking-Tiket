@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FilmController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -15,13 +16,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
 
-// Route::get('/film', [FilmController::class, 'index']);
-// Route::post('/film', [FilmController::class, 'store']);
+Route::get('/category', [CategoryController::class, 'index']);
+Route::post('/category', [CategoryController::class, 'store']);
+Route::get('/delete-category/{id}', [CategoryController::class, 'destroy']);
+Route::get('/edit-category/{id}', [CategoryController::class, 'edit']);
+Route::post('/update-category/{id}', [CategoryController::class, 'update']);
 
-Route::get('/transaction', [TransactionController::class, 'index']);
-// Route::get('/transaction', [TransactionController::class, 'create']);
-Route::post('/transaction', [TransactionController::class, 'store']);
+Route::get('/film', [FilmController::class, 'index']);
+Route::post('/film', [FilmController::class, 'store']);
+Route::get('/delete-film/{id}', [FilmController::class, 'destroy']);
+Route::get('/edit-film/{id}', [FilmController::class, 'edit']);
+Route::post('/update-film/{id}', [FilmController::class, 'update']);
+
+Route::get('/order', [TransactionController::class, 'order']);
+Route::post('/order', [TransactionController::class, 'store']);
+Route::get('/transaction', [TransactionController::class, 'transaction']);
+Route::get('/transaction-detail', [TransactionController::class, 'detail']);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Jadwal extends Model
+class TransactionDetail extends Model
 {
     use HasFactory;
-    
-    protected $table = 'jadwal_tayang';
+
+    protected $table = 'transactions_detail';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'tanggal', 'waktu', 'film_id'
+        'invoice', 'film_id'
     ];
 
     public function film(){
@@ -20,6 +20,6 @@ class Jadwal extends Model
     }
 
     public function transaction(){
-        return $this->hasMany(Transaction::class);
+        return $this->belongsTo(Transaction::class, 'invoice');
     }
 }

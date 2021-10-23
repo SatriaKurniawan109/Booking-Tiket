@@ -12,14 +12,13 @@ class Film extends Model
     protected $table = 'films';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'judul', 'category_id', 'jadwal_id'
+        'judul', 'tanggal_tayang', 'waktu_tayang', 'category_id'
     ];
 
     public function category(){
         return $this->belongsTo(Category::class, 'category_id');
     }
-
-    public function jadwal(){
-        return $this->hasMany(Jadwal::class);
+    public function transactiondetail(){
+        return $this->hasMany(TransactionDetail::class);
     }
 }

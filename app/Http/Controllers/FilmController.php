@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Film;
-use App\Models\Jadwal;
-use Illuminate\Support\Facades\DB;
 
 class FilmController extends Controller
 {
@@ -16,14 +14,17 @@ class FilmController extends Controller
      * @return \Illuminate\Http\Response
      */
     
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        $f = Jadwal::all();
-        $jadwal = Jadwal::with('film')->get();
+        $datafilm = Film::with('category')->get();
+        $ct = Category::all();
 
-        return view('film', [
-            'jadwal' => $jadwal
-        ], compact('f'));
+        return view('film', compact('datafilm'), compact('ct'));
     }
 
     /**
@@ -44,26 +45,13 @@ class FilmController extends Controller
      */
     public function store(Request $request)
     {
-        DB::beginTransaction();
-
-        try {
-            Film::create([
-                'id' => Request()->id,
-                'judul' => Request()->judul,
-            ]);
-
-            Jadwal::create([
-                'id' => Request()->id,
-                'tanggal' => Request()->tanggal,
-                'waktu' => Request()->waktu,
-                'film_id' => Request()->film_id
-            ]);
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Terdapat kesalahan, data telah di Rollback!');
-        }
-        
+        Film::create([
+            'id' => Request()->id,
+            'judul' => Request()->judul,
+            'tanggal_tayang' => Request()->tanggal_tayang,
+            'waktu_tayang' => Request()->waktu_tayang,
+            'category_id' => Request()->category_id
+        ]);
         return redirect('film');
     }
 
@@ -86,7 +74,12 @@ class FilmController extends Controller
      */
     public function edit($id)
     {
-        //
+        $datafilm = Film::findOrFail($id);
+        $ct = Category::all();
+
+        return view('edit-film', [
+            'datafilm' => $datafilm
+        ], compact('ct'));
     }
 
     /**
@@ -98,7 +91,15 @@ class FilmController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $datafilm = Film::findOrFail($id);
+        $datafilm->judul = $request->input('judul');
+        $datafilm->tanggal_tayang = $request->input('tanggal_tayang');
+        $datafilm->waktu_tayang = $request->input('waktu_tayang');
+        $datafilm->category_id = $request->input('category_id');
+          
+        $datafilm->save($request->all());
+
+        return redirect('film');
     }
 
     /**
@@ -109,6 +110,9 @@ class FilmController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $datafilm = Film::findOrFail($id);
+        $datafilm->delete();
+
+        return back();
     }
 }
